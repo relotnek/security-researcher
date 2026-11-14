@@ -1,0 +1,16 @@
+[project]
+name = "autoresearch"
+version = "0.1.0"
+description = "Autonomous security research system: durable state, scope fence, containment"
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+autoresearch = ["containment/images/**/*"]
