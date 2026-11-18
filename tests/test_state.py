@@ -44,10 +44,15 @@ class RoundTripTest(unittest.TestCase):
                 id="tsk-1",
                 engagement_id="eng-1",
                 target_id="tgt-1",
-                description="Audit CGI handlers for unchecked strcpy",
-                score=0.82,
+                objective="Audit CGI handlers for unchecked strcpy",
+                action_class="static_analysis",
+                estimates={"likelihood": 0.6, "impact": 9.0, "value": 7.0, "cost": 2.0},
+                provenance={"source": "worker", "episode_id": "ep-1"},
+                regions=["code:httpd/cgi"],
+                novelty=1.0,
+                priority=0.82,
                 status=TaskStatus.IN_PROGRESS,
-                equivalence_key="httpd:cgi:strcpy",
+                equivalence_key="tgt-1|static_analysis|cgi handler strcpy unchecked",
                 checkpoint_ref="evidence/bundle-1.tar",
             ),
             DeadEnd(
@@ -76,15 +81,15 @@ class RoundTripTest(unittest.TestCase):
 
     def test_list_filters_and_missing_records(self):
         store = StateStore(self.tmp.name)
-        a = store.put(FrontierTask(id="t-a", engagement_id="e1", target_id="x", description="a"))
-        store.put(FrontierTask(id="t-b", engagement_id="e2", target_id="x", description="b"))
+        a = store.put(FrontierTask(id="t-a", engagement_id="e1", target_id="x", objective="a", action_class="fuzzing"))
+        store.put(FrontierTask(id="t-b", engagement_id="e2", target_id="x", objective="b", action_class="fuzzing"))
         self.assertEqual(store.list(FrontierTask, engagement_id="e1"), [a])
         self.assertIsNone(store.get(FrontierTask, "nope"))
         self.assertEqual(store.list(DeadEnd), [])
 
     def test_overwrite_replaces_record(self):
         store = StateStore(self.tmp.name)
-        task = store.put(FrontierTask(id="t-a", engagement_id="e1", target_id="x", description="a"))
+        task = store.put(FrontierTask(id="t-a", engagement_id="e1", target_id="x", objective="a", action_class="fuzzing"))
         task.status = TaskStatus.DEAD_END
         store.put(task)
         self.assertIs(store.get(FrontierTask, "t-a").status, TaskStatus.DEAD_END)
