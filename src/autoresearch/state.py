@@ -130,19 +130,29 @@ class Finding(Record):
 
 @dataclass
 class FrontierTask(Record):
+    """An investigation task on the frontier. See :mod:`autoresearch.frontier`
+    for the meaning of each field and docs/frontier.md for the task shape."""
+
     kind: ClassVar[str] = "frontier_tasks"
     _enums: ClassVar = {"status": TaskStatus}
 
     id: str
     engagement_id: str
-    target_id: str
-    description: str
-    score: float = 0.0
+    target_id: str  # target reference
+    objective: str  # the hypothesis or objective to investigate
+    action_class: str  # intended action class (autoresearch.scope.ActionClass)
+    estimates: dict[str, float] = field(default_factory=dict)  # raw per-factor estimates
+    provenance: dict[str, Any] = field(default_factory=dict)  # what produced the task
+    regions: list[str] = field(default_factory=list)  # coverage footprint
+    novelty: float = 0.0  # derived from the footprint, in [0, 1]
+    priority: float = 0.0  # combined score; higher dispatches first
     status: TaskStatus = TaskStatus.QUEUED
-    equivalence_key: str = ""  # tasks sharing a key are "equivalent" for pruning
-    parent_task_id: str | None = None
+    equivalence_key: str = ""  # canonical key: tasks sharing it are equivalent
+    dead_end_equivalent: bool = False  # equivalent to a recorded dead-end
+    merged_provenance: list[dict[str, Any]] = field(default_factory=list)  # duplicates merged in
     checkpoint_ref: str | None = None  # evidence bundle for cold resume
     created_at: str = field(default_factory=now)
+    updated_at: str = field(default_factory=now)
 
 
 @dataclass
